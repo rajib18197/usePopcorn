@@ -1,28 +1,28 @@
 import { useEffect, useState } from "react";
+import { API_URL } from "../utils/config";
 
-const KEY = "cb3cde7d";
-
-export function useMovies(query) {
+export function useMovies(query, onClose) {
   const [movies, setMovies] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(
     function () {
+      onClose?.();
       const controller = new AbortController();
       async function fetchMovies() {
         try {
           setIsLoading(true);
           setError("");
-          const response = await fetch(
-            `https://www.omdbapi.com/?apikey=${KEY}&s=${query}&type=movie`,
-            { signal: controller.signal }
-          );
+          const response = await fetch(`${API_URL}&s=${query}&type=movie`, {
+            signal: controller.signal,
+          });
           if (!response.ok) throw new Error("Something went wrong!");
           const data = await response.json();
           if (data.Response === "False")
             throw new Error("We Could not find your query. Please try again!");
           setMovies(data.Search);
+          setError("");
         } catch (err) {
           if (err.name !== "AbortError") {
             console.error(err);
@@ -45,7 +45,7 @@ export function useMovies(query) {
         controller.abort();
       };
     },
-    [query]
+    [query, onClose]
   );
 
   return { isLoading, movies, error };

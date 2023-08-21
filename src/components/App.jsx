@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Box from "./Box";
 import Main from "./Main";
 import MovieList from "./MovieList";
@@ -16,16 +16,18 @@ import { useLocalStorageState } from "../hooks/useLocalStorageState";
 import WishMovieList from "./WishMovieList";
 import WishResults from "./WishResults";
 
-const KEY = "cb3cde7d";
-const API_URL = `https://www.omdbapi.com/?apikey=${KEY}`;
-
 export default function App() {
   // const [isInSearchBox, setIsInSearchBox] = useState(false);
   const [query, setQuery] = useState("");
   const [selectedId, setSelectedId] = useState(null);
-  const { movies, isLoading, error } = useMovies(query);
   const [watched, setWatched] = useLocalStorageState([], "watched");
   const [wishList, setWishList] = useLocalStorageState([], "wishList");
+
+  const handleClose = useCallback(function handleClose() {
+    setSelectedId(null);
+  }, []);
+
+  const { movies, isLoading, error } = useMovies(query, handleClose);
 
   function handleAddWatched(newWatchedMovie) {
     setWatched((watched) => [...watched, newWatchedMovie]);
@@ -37,6 +39,18 @@ export default function App() {
     setWatched((watched) => watched.filter((watch) => watch.imdbID !== id));
   }
 
+  function handleAddWishList(newWishMovie) {
+    const isInWishList = wishList.some(
+      (wish) => wish.imdbID === newWishMovie.imdbID
+    );
+
+    setWishList((wishMovies) =>
+      isInWishList
+        ? wishMovies.filter((wish) => wish.imdbID !== newWishMovie.imdbID)
+        : [...wishMovies, newWishMovie]
+    );
+  }
+
   function handleRemoveWishList(id) {
     setWishList((wishMovies) =>
       wishMovies.filter((wish) => wish.imdbID !== id)
@@ -45,10 +59,6 @@ export default function App() {
 
   function handleSelect(id) {
     setSelectedId((selectedId) => (selectedId === id ? null : id));
-  }
-
-  function handleClose() {
-    setSelectedId(null);
   }
 
   // function handleSearch(value) {
@@ -83,7 +93,8 @@ export default function App() {
               watched={watched}
               onAddWatch={handleAddWatched}
               onCloseMovie={handleClose}
-              onWishList={setWishList}
+              wishList={wishList}
+              onWishList={handleAddWishList}
             />
           ) : (
             <>
@@ -95,10 +106,10 @@ export default function App() {
             </>
           )}
         </Box>
+
         <Box>
-          {/* <h3>WishList</h3> */}
           {wishList.length === 0 && (
-            <p>Your wishlist is Empty. Keep Explore!</p>
+            <p className="text">Your wishlist is Empty. Keep Explore!</p>
           )}
           {wishList.length > 0 && (
             <WishMovieList

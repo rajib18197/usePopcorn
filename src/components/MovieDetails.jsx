@@ -2,14 +2,15 @@ import { useEffect, useState } from "react";
 import StarRating from "./StarRating";
 import Loader from "./Loader";
 import { useKey } from "../hooks/UseKey";
-const KEY = "cb3cde7d";
-const API_URL = `https://www.omdbapi.com/?apikey=${KEY}`;
+
+import { API_URL } from "../utils/config";
 
 export default function MovieDetails({
   watched,
   selectedId,
   onAddWatch,
   onCloseMovie,
+  wishList,
   onWishList,
 }) {
   const [movie, setMovie] = useState({});
@@ -22,6 +23,8 @@ export default function MovieDetails({
   const { isWatched, userRating: rating } = watchedMovie
     ? { isWatched: true, userRating: watchedMovie.userRating }
     : { isWatched: false, userRating: null };
+
+  const isInWishList = wishList.some((wish) => wish.imdbID === selectedId);
 
   // prettier-ignore
   const {imdbID, Title: title, Actors: actors, Director: director, Genre: genre, Plot: plot, Poster: poster, imdbRating, Runtime: runtime, Released: released, Year: year} = movie;
@@ -40,14 +43,15 @@ export default function MovieDetails({
   }
 
   function handleWishList() {
-    const wishMovie = {
+    const newWishMovie = {
       imdbID,
       title,
       poster,
       imdbRating,
       year,
     };
-    onWishList((wishMovies) => [...wishMovies, wishMovie]);
+
+    onWishList(newWishMovie);
   }
 
   useEffect(
@@ -106,7 +110,10 @@ export default function MovieDetails({
             <span>{imdbRating} imdb rating</span>
           </p>
 
-          <div className="wishlist" onClick={() => handleWishList()}>
+          <div
+            className={`wishlist ${isInWishList && "active"}`}
+            onClick={() => handleWishList()}
+          >
             <button className="wish-btn">💛</button>
           </div>
         </div>
