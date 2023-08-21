@@ -17,7 +17,7 @@ import WishMovieList from "./WishMovieList";
 import WishResults from "./WishResults";
 
 const KEY = "cb3cde7d";
-const API_URL = `http://www.omdbapi.com/?apikey=${KEY}`;
+const API_URL = `https://www.omdbapi.com/?apikey=${KEY}`;
 
 export default function App() {
   // const [isInSearchBox, setIsInSearchBox] = useState(false);
