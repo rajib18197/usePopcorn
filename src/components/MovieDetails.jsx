@@ -3,7 +3,7 @@ import StarRating from "./StarRating";
 import Loader from "./Loader";
 import { useKey } from "../hooks/UseKey";
 const KEY = "cb3cde7d";
-const API_URL = `http://www.omdbapi.com/?apikey=${KEY}`;
+const API_URL = `https://www.omdbapi.com/?apikey=${KEY}`;
 
 export default function MovieDetails({
   watched,
